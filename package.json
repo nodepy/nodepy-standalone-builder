@@ -1,5 +1,5 @@
 {
-  "name": "@niklas/nodepy-standalone-builder",
+  "name": "nodepy-standalone-builder",
   "version": "0.0.1",
   "author": "Niklas Rosenstein <rosensteinniklas@gmail.com>",
   "license": "MIT",
