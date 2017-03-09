@@ -98,7 +98,7 @@ def blobbify(name, code, compress, line_width=79, store_method='direct',
   lines = '\\\n'.join(textwrap.wrap(data, width=line_width))
   return template.format(name=name, blobdata=lines, storemethod=storemethod)
 
-def main():
+def main(argv=None):
   parser = argparse.ArgumentParser()
   parser.add_argument('file', type=argparse.FileType('r'))
   parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=sys.stdout)
@@ -108,7 +108,7 @@ def main():
   parser.add_argument('-w', '--line-width', type=int, default=79)
   parser.add_argument('-s', '--store-method', choices=('direct', 'default'))
   parser.add_argument('-e', '--export-symbol')
-  args = parser.parse_args()
+  args = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
   if args.export_symbol:
     if args.store_method:
