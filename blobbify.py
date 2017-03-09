@@ -73,6 +73,31 @@ def minify(code, obfuscate=False):
       silent_remove(fp.name)
   return result.replace('\r\n', '\n')
 
+def blobbify(name, code, compress, line_width=79, store_method='direct',
+             export_symbol=None):
+  assert store_method in (None, 'direct', 'default')
+  assert not (store_method and export_symbol), \
+      "store_method and export_symbol can not be combined"
+
+  # Compress the code, if desired, and convert to Base64.
+  data = code.encode('utf8')
+  if compress:
+    data = zlib.compress(data)
+    template = EXEC_TEMPLATE_COMPRESSED
+  else:
+    template = EXEC_TEMPLATE
+  data = base64.b64encode(data).decode('ascii')
+
+  if export_symbol:
+    storemethod = STOREMETHOD_SYMBOL.format(name=name, symbol=export_symbol)
+  elif store_method in ('default', None):
+    storemethod = STOREMETHOD_DEFAULT.format(name=name)
+  elif store_method == 'direct':
+    storemethod = STOREMETHOD_DIRECT.format(name=name)
+
+  lines = '\\\n'.join(textwrap.wrap(data, width=line_width))
+  return template.format(name=name, blobdata=lines, storemethod=storemethod)
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('file', type=argparse.FileType('r'))
@@ -84,6 +109,10 @@ def main():
   parser.add_argument('-s', '--store-method', choices=('direct', 'default'))
   parser.add_argument('-e', '--export-symbol')
   args = parser.parse_args()
+
+  if args.export_symbol:
+    if args.store_method:
+      parser.error('--export-symbol and --store-method can not be combined')
 
   data = args.file.read()
   if args.minify:
@@ -97,18 +126,10 @@ def main():
   data = base64.b64encode(data).decode('ascii')
 
   name = os.path.splitext(os.path.basename(args.file.name))[0]
-  if args.export_symbol:
-    if args.store_method:
-      parser.error('--export-symbol and --store-method can not be combined')
-    storemethod = STOREMETHOD_SYMBOL.format(name=name, symbol=args.export_symbol)
-  elif args.store_method in ('default', None):
-    storemethod = STOREMETHOD_DEFAULT.format(name=name)
-  elif args.store_method == 'direct':
-    storemethod = STOREMETHOD_DIRECT.format(name=name)
+  args.output.write(blobbify(name, data, args.compress, args.line_width,
+      args.store_method, args.export_symbol))
 
-  lines = '\\\n'.join(textwrap.wrap(data, width=args.line_width))
-  result = template.format(name=name, blobdata=lines, storemethod=storemethod)
-  args.output.write(result)
+exports = blobbify
 
-if __name__ == "__main__":
+if require.main == module:
   sys.exit(main())
