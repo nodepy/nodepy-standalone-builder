@@ -73,11 +73,14 @@ def minify(code, obfuscate=False):
       silent_remove(fp.name)
   return result.replace('\r\n', '\n')
 
-def blobbify(name, code, compress, line_width=79, store_method='direct',
-             export_symbol=None):
+def blobbify(name, code, compress=False, minify=False, minify_obfuscate=False,
+             line_width=79, store_method='direct', export_symbol=None):
   assert store_method in (None, 'direct', 'default')
   assert not (store_method and export_symbol), \
       "store_method and export_symbol can not be combined"
+
+  if minify:
+    code = globals()['minify'](code, minify_obfuscate)
 
   # Compress the code, if desired, and convert to Base64.
   data = code.encode('utf8')
