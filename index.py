@@ -29,16 +29,20 @@ import localimport
 
 blobbify = require('./blobbify')
 
-@click.command()
-@click.option('--info', is_flag=True)
-@click.option('-c', '--compress', is_flag=True)
-@click.option('-m', '--minify', is_flag=True)
-@click.option('-f', '--fullblob', is_flag=True)
-@click.option('-o', '--output')
-def main(info, compress, minify, fullblob, output):
+def build(compress=False, minify=False, fullblob=False):
   """
-  Generate a standalone-version of the installed Node.py version by inlining
-  its dependencies. Optionally, Node.py can be inlined as a Python-blob, too.
+  Builds the single-file distribution of Node.Py using the specified
+  parameters. Blobs of modules are always base64 encoded.
+
+  # Arguments
+  compress (bool): True to compress the code using zlib.
+  minify (bool): True to minify the source code using pyminifier.
+  fullblob (bool): True to generate one single blob that results in
+      the `nodepy` module, otherwise only replace non-standard library
+      imports with such blobs.
+
+  # Returns
+  str: The resulting standalone version of Node.Py.
   """
 
   def blobbit(module, code=None):
@@ -52,6 +56,21 @@ def main(info, compress, minify, fullblob, output):
 
   if fullblob:
     source = blobbit('nodepy', source)
+
+  return source
+
+@click.command()
+@click.option('-c', '--compress', is_flag=True)
+@click.option('-m', '--minify', is_flag=True)
+@click.option('-f', '--fullblob', is_flag=True)
+@click.option('-o', '--output')
+def main(compress, minify, fullblob, output):
+  """
+  Generate a standalone-version of the installed Node.py version by inlining
+  its dependencies. Optionally, Node.py can be inlined as a Python-blob, too.
+  """
+
+  source = build(compress, minify, fullblob)
 
   if not output:
     print(source)

@@ -1,9 +1,12 @@
 {
-  "name": "@niklas/nodepy-standalone-builder",
+  "name": "nodepy-standalone-builder",
   "version": "0.0.1",
   "author": "Niklas Rosenstein <rosensteinniklas@gmail.com>",
   "description": "Generate a single-file distribution of Node.py",
   "license": "MIT",
+  "bin": {
+    "nodepy-standalone-builder": "index"
+  },
   "python-dependencies": {
     "pyminifier": ">=2.1"
   }
