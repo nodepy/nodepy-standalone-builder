@@ -42,7 +42,6 @@ using optionally compressed and minified Python blobs.
     -m, --minify
     -O, --minify-obfuscate
     -w, --line-width INTEGER
-    -s, --store-method [direct|default]
     -e, --export-symbol TEXT
     --help                          Show this message and exit.
 
@@ -70,6 +69,10 @@ __Returns__
 `str`: The resulting standalone version of Node.Py.
 
 ## Changelog
+
+### v0.0.3
+
+- Removed `-s,--store-method` argument from `mkblob`
 
 ### v0.0.2
 

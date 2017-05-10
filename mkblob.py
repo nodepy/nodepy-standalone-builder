@@ -40,9 +40,8 @@ exec(z.decompress(b.b64decode(blob)), vars(m)); {storemethod}
 del blob, b, t, z, m;
 '''
 
-STOREMETHOD_SYMBOL = 'blob_store[{name!r}]=m;{symbol}=getattr(m,{symbol!r})'
+STOREMETHOD_SYMBOL = '_{name}=m;{symbol}=getattr(m,"{symbol}")'
 STOREMETHOD_DIRECT = '{name}=m'
-STOREMETHOD_DEFAULT = 'blob_store[{name!r}]=m'
 
 def silent_remove(filename):
   try:
@@ -71,11 +70,7 @@ def minify(code, obfuscate=False):
   return result.replace('\r\n', '\n')
 
 def mkblob(name, code, compress=False, minify=False, minify_obfuscate=False,
-             line_width=79, store_method='direct', export_symbol=None):
-  assert store_method in (None, 'direct', 'default')
-  assert not (store_method and export_symbol), \
-      "store_method and export_symbol can not be combined"
-
+           line_width=79, export_symbol=None):
   if minify:
     code = globals()['minify'](code, minify_obfuscate)
 
@@ -90,9 +85,7 @@ def mkblob(name, code, compress=False, minify=False, minify_obfuscate=False,
 
   if export_symbol:
     storemethod = STOREMETHOD_SYMBOL.format(name=name, symbol=export_symbol)
-  elif store_method in ('default', None):
-    storemethod = STOREMETHOD_DEFAULT.format(name=name)
-  elif store_method == 'direct':
+  else:
     storemethod = STOREMETHOD_DIRECT.format(name=name)
 
   lines = '\\\n'.join(textwrap.wrap(data, width=line_width))
@@ -105,10 +98,9 @@ def mkblob(name, code, compress=False, minify=False, minify_obfuscate=False,
 @click.option('-m', '--minify', is_flag=True)
 @click.option('-O', '--minify-obfuscate', is_flag=True)
 @click.option('-w', '--line-width', type=int, default=79)
-@click.option('-s', '--store-method', type=click.Choice(['direct', 'default']))
 @click.option('-e', '--export-symbol')
-def main(sourcefile, output, compress, minify, minify_obfuscate, line_width,
-    store_method, export_symbol):
+def main(sourcefile, output, compress, minify, minify_obfuscate,
+    line_width, export_symbol):
   """
   Create a base64 encoded, optionally compressed and minified blob of a
   Python source file. Note that the -O,--minify-obfuscate option does not
@@ -116,15 +108,10 @@ def main(sourcefile, output, compress, minify, minify_obfuscate, line_width,
   file) due to incompatibilities in pyminifier.
   """
 
-  if export_symbol:
-    if store_method:
-      parser.error('--export-symbol and --store-method can not be combined')
-
   name = os.path.splitext(os.path.basename(sourcefile.name))[0]
   output.write(mkblob(name=name, code=sourcefile.read(), minify=minify,
       compress=compress, minify_obfuscate=minify_obfuscate,
-      line_width=line_width, store_method=store_method,
-      export_symbol=export_symbol))
+      line_width=line_width, export_symbol=export_symbol))
 
 exports = mkblob
 
