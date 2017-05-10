@@ -29,7 +29,7 @@ import localimport
 
 mkblob = require('./mkblob')
 
-def build(compress=False, minify=False, fullblob=False):
+def build(compress=False, minify=False, minify_obfuscate=False, fullblob=False):
   """
   Builds the single-file distribution of Node.Py using the specified
   parameters. Blobs of modules are always base64 encoded.
@@ -48,7 +48,8 @@ def build(compress=False, minify=False, fullblob=False):
   def blobbit(module, code=None):
     if code is None:
       code = inspect.getsource(sys.modules[module])
-    return mkblob(module, code, compress=compress, minify=minify)
+    return mkblob(module, code, compress=compress, minify=minify,
+        minify_obfuscate=minify_obfuscate)
 
   source = inspect.getsource(nodepy)
   source = source.replace('import localimport', blobbit('localimport'), 1)
@@ -62,15 +63,20 @@ def build(compress=False, minify=False, fullblob=False):
 @click.command()
 @click.option('-c', '--compress', is_flag=True)
 @click.option('-m', '--minify', is_flag=True)
+@click.option('-O', '--minify-obfuscate', is_flag=True)
 @click.option('-f', '--fullblob', is_flag=True)
 @click.option('-o', '--output')
-def main(compress, minify, fullblob, output):
+def main(compress, minify, minify_obfuscate, fullblob, output):
   """
   Generate a standalone-version of the installed Node.py version by inlining
   its dependencies. Optionally, Node.py can be inlined as a Python-blob, too.
+
+  Note that the -O,--minify-obfuscate option does not always work (eg. when
+  using a variable 'file' in a Python 3.6 source file) due to incompatibilities
+  in pyminifier.
   """
 
-  source = build(compress, minify, fullblob)
+  source = build(compress, minify, minify_obfuscate, fullblob)
 
   if not output:
     print(source)

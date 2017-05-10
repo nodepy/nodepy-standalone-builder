@@ -36,7 +36,6 @@ exec(b.b64decode(blob), vars(m)); {storemethod}; del blob, b, t, m;
 EXEC_TEMPLATE_COMPRESSED = '''
 import base64 as b, types as t, zlib as z; m=t.ModuleType({name!r}); blob=b'\\
 {blobdata}'
-print(z.decompress(b.b64decode(blob)).decode())
 exec(z.decompress(b.b64decode(blob)), vars(m)); {storemethod}
 del blob, b, t, z, m;
 '''

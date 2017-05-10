@@ -13,17 +13,21 @@ using optionally compressed and minified Python blobs.
     $ nodepy-standalone-builder --help
     Usage: nodepy-standalone-builder [OPTIONS]
 
-      Generate a standalone-version of the installed Node.py version by inlining
-      its dependencies. Optionally, Node.py can be inlined as a Python-blob,
-      too.
+    Generate a standalone-version of the installed Node.py version by inlining
+    its dependencies. Optionally, Node.py can be inlined as a Python-blob,
+    too.
+
+    Note that the -O,--minify-obfuscate option does not always work (eg. when
+    using a variable 'file' in a Python 3.6 source file) due to
+    incompatibilities in pyminifier.
 
     Options:
-      --info
-      -c, --compress
-      -m, --minify
-      -f, --fullblob
-      -o, --output TEXT
-      --help             Show this message and exit.
+    -c, --compress
+    -m, --minify
+    -O, --minify-obfuscate
+    -f, --fullblob
+    -o, --output TEXT
+    --help                  Show this message and exit.
     $ nodepy-standalone-mkblob --help
     Usage: nodepy-standalone-mkblob [OPTIONS] SOURCEFILE
 
