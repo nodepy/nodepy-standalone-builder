@@ -69,5 +69,6 @@ __Returns__
 
 ### v0.0.2
 
+- Rename `blobbify.py` to `mkblob.py`
 - Add `nodepy-standalone-mkblob` command
-- Update `blobbify.py` to use Click instead of argparse
+- Update `mkblob.py` to use Click instead of argparse

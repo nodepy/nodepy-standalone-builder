@@ -27,7 +27,7 @@ import nodepy
 import six
 import localimport
 
-blobbify = require('./blobbify')
+mkblob = require('./mkblob')
 
 def build(compress=False, minify=False, fullblob=False):
   """
@@ -48,7 +48,7 @@ def build(compress=False, minify=False, fullblob=False):
   def blobbit(module, code=None):
     if code is None:
       code = inspect.getsource(sys.modules[module])
-    return blobbify(module, code, compress=compress, minify=minify)
+    return mkblob(module, code, compress=compress, minify=minify)
 
   source = inspect.getsource(nodepy)
   source = source.replace('import localimport', blobbit('localimport'), 1)

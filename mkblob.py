@@ -41,9 +41,9 @@ exec(z.decompress(b.b64decode(blob)), vars(m)); {storemethod}
 del blob, b, t, z, m;
 '''
 
-STOREMETHOD_SYMBOL = 'blobbify_store[{name!r}]=m;{symbol}=getattr(m,{symbol!r})'
+STOREMETHOD_SYMBOL = 'blob_store[{name!r}]=m;{symbol}=getattr(m,{symbol!r})'
 STOREMETHOD_DIRECT = '{name}=m'
-STOREMETHOD_DEFAULT = 'blobbify_store[{name!r}]=m'
+STOREMETHOD_DEFAULT = 'blob_store[{name!r}]=m'
 
 def silent_remove(filename):
   try:
@@ -71,7 +71,7 @@ def minify(code, obfuscate=False):
       silent_remove(fp.name)
   return result.replace('\r\n', '\n')
 
-def blobbify(name, code, compress=False, minify=False, minify_obfuscate=False,
+def mkblob(name, code, compress=False, minify=False, minify_obfuscate=False,
              line_width=79, store_method='direct', export_symbol=None):
   assert store_method in (None, 'direct', 'default')
   assert not (store_method and export_symbol), \
@@ -122,12 +122,12 @@ def main(file, output, compress, minify, minify_obfuscate, line_width,
       parser.error('--export-symbol and --store-method can not be combined')
 
   name = os.path.splitext(os.path.basename(file.name))[0]
-  output.write(blobbify(name=name, code=file.read(), minify=minify,
+  output.write(mkblob(name=name, code=file.read(), minify=minify,
       compress=compress, minify_obfuscate=minify_obfuscate,
       line_width=line_width, store_method=store_method,
       export_symbol=export_symbol))
 
-exports = blobbify
+exports = mkblob
 
 if require.main == module:
   sys.exit(main())

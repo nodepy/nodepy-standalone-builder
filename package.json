@@ -6,7 +6,7 @@
   "license": "MIT",
   "bin": {
     "nodepy-standalone-builder": "index",
-    "nodepy-standalone-mkblob": "blobbify"
+    "nodepy-standalone-mkblob": "mkblob"
   },
   "python-dependencies": {
     "pyminifier": ">=2.1"
