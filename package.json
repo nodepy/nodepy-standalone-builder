@@ -5,7 +5,8 @@
   "description": "Generate a single-file distribution of Node.py",
   "license": "MIT",
   "bin": {
-    "nodepy-standalone-builder": "index"
+    "nodepy-standalone-builder": "index",
+    "nodepy-standalone-mkblob": "blobbify"
   },
   "python-dependencies": {
     "pyminifier": ">=2.1"

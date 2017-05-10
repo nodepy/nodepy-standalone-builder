@@ -18,11 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__author__ = 'Niklas Rosenstein <rosensteinniklas@gmail.com>'
-__version__ = '1.3'
-
-import argparse
 import base64
+import click
 import os
 import subprocess
 import sys
@@ -39,6 +36,7 @@ exec(b.b64decode(blob), vars(m)); {storemethod}; del blob, b, t, m;
 EXEC_TEMPLATE_COMPRESSED = '''
 import base64 as b, types as t, zlib as z; m=t.ModuleType({name!r}); blob=b'\\
 {blobdata}'
+print(z.decompress(b.b64decode(blob)).decode())
 exec(z.decompress(b.b64decode(blob)), vars(m)); {storemethod}
 del blob, b, t, z, m;
 '''
@@ -101,36 +99,33 @@ def blobbify(name, code, compress=False, minify=False, minify_obfuscate=False,
   lines = '\\\n'.join(textwrap.wrap(data, width=line_width))
   return template.format(name=name, blobdata=lines, storemethod=storemethod)
 
-def main(argv=None):
-  parser = argparse.ArgumentParser()
-  parser.add_argument('file', type=argparse.FileType('r'))
-  parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=sys.stdout)
-  parser.add_argument('-c', '--compress', action='store_true')
-  parser.add_argument('-m', '--minify', action='store_true')
-  parser.add_argument('-O', '--minify-obfuscate', action='store_true')
-  parser.add_argument('-w', '--line-width', type=int, default=79)
-  parser.add_argument('-s', '--store-method', choices=('direct', 'default'))
-  parser.add_argument('-e', '--export-symbol')
-  args = parser.parse_args(sys.argv[1:] if argv is None else argv)
+@click.command()
+@click.argument('sourcefile', type=click.File('r'))
+@click.option('-o', '--output', type=click.File('w'), default=sys.stdout)
+@click.option('-c', '--compress', is_flag=True)
+@click.option('-m', '--minify', is_flag=True)
+@click.option('-O', '--minify-obfuscate', is_flag=True)
+@click.option('-w', '--line-width', type=int, default=79)
+@click.option('-s', '--store-method', type=click.Choice(['direct', 'default']))
+@click.option('-e', '--export-symbol')
+def main(file, output, compress, minify, minify_obfuscate, line_width,
+    store_method, export_symbol):
+  """
+  Create a base64 encoded, optionally compressed and minified blob of a
+  Python source file. Note that the -O,--minify-obfuscate option does not
+  always work (eg. when using a variable 'file' in a Python 3.6 source
+  file) due to incompatibilities in pyminifier.
+  """
 
-  if args.export_symbol:
-    if args.store_method:
+  if export_symbol:
+    if store_method:
       parser.error('--export-symbol and --store-method can not be combined')
 
-  data = args.file.read()
-  if args.minify:
-    data = minify(data, obfuscate=args.minify_obfuscate)
-  data = data.encode('utf8')
-  if args.compress:
-    data = zlib.compress(data)
-    template = EXEC_TEMPLATE_COMPRESSED
-  else:
-    template = EXEC_TEMPLATE
-  data = base64.b64encode(data).decode('ascii')
-
-  name = os.path.splitext(os.path.basename(args.file.name))[0]
-  args.output.write(blobbify(name, data, args.compress, args.line_width,
-      args.store_method, args.export_symbol))
+  name = os.path.splitext(os.path.basename(file.name))[0]
+  output.write(blobbify(name=name, code=file.read(), minify=minify,
+      compress=compress, minify_obfuscate=minify_obfuscate,
+      line_width=line_width, store_method=store_method,
+      export_symbol=export_symbol))
 
 exports = blobbify
 

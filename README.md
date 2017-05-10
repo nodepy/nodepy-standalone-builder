@@ -10,7 +10,7 @@ using optionally compressed and minified Python blobs.
 
 ## CLI
 
-    $ nodepy-standalone-builder
+    $ nodepy-standalone-builder --help
     Usage: nodepy-standalone-builder [OPTIONS]
 
       Generate a standalone-version of the installed Node.py version by inlining
@@ -24,6 +24,23 @@ using optionally compressed and minified Python blobs.
       -f, --fullblob
       -o, --output TEXT
       --help             Show this message and exit.
+    $ nodepy-standalone-mkblob --help
+    Usage: nodepy-standalone-mkblob [OPTIONS] SOURCEFILE
+
+    Create a base64 encoded, optionally compressed and minified blob of a
+    Python source file. Note that the -O,--minify-obfuscate option does not
+    always work (eg. when using a variable 'file' in a Python 3.6 source file)
+    due to incompatibilities in pyminifier.
+
+    Options:
+    -o, --output FILENAME
+    -c, --compress
+    -m, --minify
+    -O, --minify-obfuscate
+    -w, --line-width INTEGER
+    -s, --store-method [direct|default]
+    -e, --export-symbol TEXT
+    --help                          Show this message and exit.
 
 ## API
 
@@ -47,3 +64,10 @@ __Arguments__
 __Returns__
 
 `str`: The resulting standalone version of Node.Py.
+
+## Changelog
+
+### v0.0.2
+
+- Add `nodepy-standalone-mkblob` command
+- Update `blobbify.py` to use Click instead of argparse
