@@ -107,7 +107,7 @@ def mkblob(name, code, compress=False, minify=False, minify_obfuscate=False,
 @click.option('-w', '--line-width', type=int, default=79)
 @click.option('-s', '--store-method', type=click.Choice(['direct', 'default']))
 @click.option('-e', '--export-symbol')
-def main(file, output, compress, minify, minify_obfuscate, line_width,
+def main(sourcefile, output, compress, minify, minify_obfuscate, line_width,
     store_method, export_symbol):
   """
   Create a base64 encoded, optionally compressed and minified blob of a
@@ -120,8 +120,8 @@ def main(file, output, compress, minify, minify_obfuscate, line_width,
     if store_method:
       parser.error('--export-symbol and --store-method can not be combined')
 
-  name = os.path.splitext(os.path.basename(file.name))[0]
-  output.write(mkblob(name=name, code=file.read(), minify=minify,
+  name = os.path.splitext(os.path.basename(sourcefile.name))[0]
+  output.write(mkblob(name=name, code=sourcefile.read(), minify=minify,
       compress=compress, minify_obfuscate=minify_obfuscate,
       line_width=line_width, store_method=store_method,
       export_symbol=export_symbol))
