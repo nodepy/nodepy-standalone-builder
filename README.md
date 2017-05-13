@@ -1,4 +1,4 @@
-# Node.Py standalone builder
+# nodepy/standalone-builder
 
 Builds the currently installed version of Node.py and incoorporates its
 dependencies, which are namely `six` and `localimport`, into the same file
@@ -28,6 +28,9 @@ using optionally compressed and minified Python blobs.
     -f, --fullblob
     -o, --output TEXT
     --help                  Show this message and exit.
+
+---
+
     $ nodepy-standalone-mkblob --help
     Usage: nodepy-standalone-mkblob [OPTIONS] SOURCEFILE
 
