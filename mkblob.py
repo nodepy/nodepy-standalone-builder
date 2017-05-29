@@ -79,7 +79,6 @@ def mkblob(name, code, compress=False, minify=False, minify_obfuscate=False,
   if compress:
     data = zlib.compress(data)
     decode = DECODE_B64ZLIB
-    template = EXEC_TEMPLATE_COMPRESSED
   elif blob:
     decode = DECODE_B64
   else:

@@ -73,6 +73,10 @@ __Returns__
 
 ## Changelog
 
+### v0.0.6
+
+- Hotfix for `NameError: name 'EXEC_TEMPLATE_COMPRESSED' is not defined`
+
 ### v0.0.5
 
 - Add `--blob/--no-blob` option, allowing to use `--no-blob` to generate an
