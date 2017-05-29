@@ -73,6 +73,17 @@ __Returns__
 
 ## Changelog
 
+### v0.0.5
+
+- Add `--blob/--no-blob` option, allowing to use `--no-blob` to generate an
+  uncompressed blob for debugging purposes
+- Modules executed in blobs now inherit the global `__file__` member of the
+  executing scope
+
+### v0.0.4
+
+- Rename from `nodepy-standalone-builder` to `@nodepy/standalone-builder`
+
 ### v0.0.3
 
 - Removed `-s,--store-method` argument from `mkblob`

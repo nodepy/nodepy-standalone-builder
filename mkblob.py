@@ -27,16 +27,14 @@ import tempfile
 import textwrap
 import zlib
 
-EXEC_TEMPLATE = '''
-import base64 as b, types as t; m=t.ModuleType({name!r}); blob=b'\\
-{blobdata}'
-exec(b.b64decode(blob), vars(m)); {storemethod}; del blob, b, t, m;
-'''
+DECODE_NONE = 'blob'
+DECODE_B64 = 'b.b64decode(blob)'
+DECODE_B64ZLIB = 'z.decompress(b.b64decode(blob))'
 
-EXEC_TEMPLATE_COMPRESSED = '''
-import base64 as b, types as t, zlib as z; m=t.ModuleType({name!r}); blob=b'\\
-{blobdata}'
-exec(z.decompress(b.b64decode(blob)), vars(m)); {storemethod}
+EXEC_TEMPLATE = '''
+import base64 as b, types as t, zlib as z; m=t.ModuleType({name!r});
+m.__file__ = __file__; blob={blobdata}
+exec({decode}, vars(m)); {storemethod}
 del blob, b, t, z, m;
 '''
 
@@ -70,26 +68,34 @@ def minify(code, obfuscate=False):
   return result.replace('\r\n', '\n')
 
 def mkblob(name, code, compress=False, minify=False, minify_obfuscate=False,
-           line_width=79, export_symbol=None):
+           line_width=79, export_symbol=None, blob=True):
   if minify:
     code = globals()['minify'](code, minify_obfuscate)
 
   # Compress the code, if desired, and convert to Base64.
+  if not compress and not blob:
+    code = code.replace('\\', '\\\\').replace('"""', '\\"\\"\\"')
   data = code.encode('utf8')
   if compress:
     data = zlib.compress(data)
+    decode = DECODE_B64ZLIB
     template = EXEC_TEMPLATE_COMPRESSED
+  elif blob:
+    decode = DECODE_B64
   else:
-    template = EXEC_TEMPLATE
-  data = base64.b64encode(data).decode('ascii')
+    decode = DECODE_NONE
+  if compress or blob:
+    data = base64.b64encode(data).decode('ascii')
+    lines = "b'\\" + '\\\n'.join(textwrap.wrap(data, width=line_width)) + "'"
+  else:
+    lines = '"""' + data.decode('utf8') + '"""'
 
   if export_symbol:
     storemethod = STOREMETHOD_SYMBOL.format(name=name, symbol=export_symbol)
   else:
     storemethod = STOREMETHOD_DIRECT.format(name=name)
 
-  lines = '\\\n'.join(textwrap.wrap(data, width=line_width))
-  return template.format(name=name, blobdata=lines, storemethod=storemethod)
+  return EXEC_TEMPLATE.format(name=name, blobdata=lines, storemethod=storemethod, decode=decode)
 
 @click.command()
 @click.argument('sourcefile', type=click.File('r'))
