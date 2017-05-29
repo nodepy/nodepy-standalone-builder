@@ -1,6 +1,6 @@
 {
   "name": "@nodepy/standalone-builder",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "Niklas Rosenstein <rosensteinniklas@gmail.com>",
   "description": "Build a single-file distribution of Node.py",
   "license": "MIT",
